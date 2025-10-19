@@ -8,6 +8,10 @@ pragma solidity ^0.8.28;
  */
 contract ABIEncoder {
 
+    //Variables
+
+    string public constant LIMIT_ORDER_NAME = "LIMIT_ORDER_V1";
+    string public constant YIELD_POSITION_NAME = "YIELD_POSITION_V1";
     // Events to show codification
 
     event EncodedData(bytes32 indexed hash, bytes encodedData);
@@ -79,6 +83,39 @@ contract ABIEncoder {
         // Combine all data into swapData
         swapData = abi.encodePacked(pathData, amountData, deadline);
    
+    }
+
+    /**
+     * @dev Function to encode a limit order using abi.encodePacked.
+     * @param maker Address of the order maker.
+     * @param taker Address of the order taker.
+     * @param tokenIn Address of the input token.
+     * @param tokenOut Address of the output token.
+     * @param amountIn Amount of input token.
+     * @param amountOut Amount of output token.
+     * @param nonce Unique nonce for the order.
+     * @return orderHash Unique hash for the limit order.
+     * @return orderData Encoded data of the limit order.
+     */
+    function encodeLimitOrder(address maker, address taker, address tokenIn, address tokenOut, uint256 amountIn, uint256 amountOut, uint256 nonce) external pure returns(bytes32 orderHash, bytes memory orderData) {
+    
+        // Encode the limit order data using abi.encodePacked
+        orderData = abi.encodePacked(maker, taker, tokenIn, tokenOut, amountIn, amountOut, nonce, LIMIT_ORDER_NAME);
+        // Create a unique hash for the order
+        orderHash = keccak256(orderData);
+    }
+
+    /**
+     * @dev Function to encode a yield farming position using abi.encodePacked.
+     * @param user Address of the user.
+     * @param poolId Identifier of the yield farming pool.
+     * @param amount Amount staked in the pool.
+     * @param startTime Timestamp when the position was created.
+     * @return positionId Unique identifier for the yield farming position.
+     */
+    function encodeYieldPosition(address user, bytes32 poolId, uint256 amount, uint256 startTime) external pure returns(bytes32 positionId){
+
+        positionId = keccak256(abi.encodePacked(user, poolId, amount, startTime,YIELD_POSITION_NAME));
     }
 
 
