@@ -12,6 +12,10 @@ contract ABIEncoder {
 
     string public constant LIMIT_ORDER_NAME = "LIMIT_ORDER_V1";
     string public constant YIELD_POSITION_NAME = "YIELD_POSITION_V1";
+    string public constant FLASH_LOAN_NAME = "FLASH_LOAN_V1";
+    string public constant MULTIPOOL_NAME = "USER_MULTI_POOL_V1";
+    string public constant STRATEGY_NAME = "YIELD_STRATEGY_V1";
+
     // Events to show codification
 
     event EncodedData(bytes32 indexed hash, bytes encodedData);
@@ -119,7 +123,65 @@ contract ABIEncoder {
     }
 
 
-   
+   /**
+    * @dev Function to encode flash loan data using abi.encodePacked.
+    * @param token Address of the token to be borrowed.
+    * @param amount Amount of the token to be borrowed.
+    * @param callbackData Additional data to be passed to the callback function.
+    * @return flashLoanData Encoded data for the flash loan.
+    */
+   function encodeFlashLoanData(address token, uint256 amount, bytes calldata callbackData) external pure returns(bytes memory flashLoanData) {
+        
+        flashLoanData = abi.encodePacked(token, amount, callbackData,FLASH_LOAN_NAME);
+   }
+
+   /**
+    * @dev Function to encode staking pool configuration using abi.encodePacked.
+    * @param token Address of the staking token.
+    * @param rewardRate Reward rate for the staking pool.
+    * @param lockPeriod Lock period for staked tokens.
+    * @param maxStake Maximum stake allowed in the pool.
+    * @return poolConfig Encoded configuration data for the staking pool.
+    */
+   function encodeStakingPoolConfig(address token, uint256 rewardRate, uint256 lockPeriod, uint256 maxStake) external view returns(bytes memory poolConfig) {
+        poolConfig = abi.encodePacked(token, rewardRate, lockPeriod, maxStake, block.timestamp);
+   }
+
+   /**
+    * @dev Function to create a unique hash for a user and multiple pool IDs using abi.encodePacked.
+    * @param user Address of the user.
+    * @param poolIds Array of pool IDs.
+    * @return userPoolHash Unique hash combining the user address and pool IDs.
+    */
+   function createUserMultiPoolHash(address user, bytes32[] calldata poolIds) external pure returns(bytes32 userPoolHash) {
+        bytes memory combinedData = abi.encodePacked(user);
+        for(uint i = 0; i < poolIds.length; i++) {
+            combinedData = abi.encodePacked(combinedData, poolIds[i]);
+        }
+        combinedData = abi.encodePacked(combinedData, MULTIPOOL_NAME);
+        userPoolHash = keccak256(combinedData);
+   }
+
+   function encodeYieldStrategy(string calldata strategyName, address[] calldata pools, uint256[] calldata weights) external pure returns(bytes memory strategyData) {
+        require(pools.length == weights.length, "Pools and weights length mismatch");
+
+        // Encode strategy name
+        bytes memory strategyNameData = abi.encodePacked(strategyName);
+
+        //Encode pools
+        bytes memory poolsData;
+        for(uint i = 0; i < pools.length; i++) {
+            poolsData = abi.encodePacked(poolsData, pools[i]);
+        }
+
+        //Encode weights
+        bytes memory weightsData;
+        for(uint i = 0; i < weights.length; i++) {
+            weightsData = abi.encodePacked(weightsData, weights[i]);
+        }
+
+        strategyData = abi.encodePacked(strategyNameData, poolsData, weightsData,STRATEGY_NAME);
+   }
 
   
 
