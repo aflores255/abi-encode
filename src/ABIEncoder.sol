@@ -53,6 +53,34 @@ contract ABIEncoder {
      
     }
 
+    /**
+     * @dev Function to encode swap data for a swap on a decentralized exchange using abi.encodePacked.
+     * @param path Array of token addresses representing the swap path.
+     * @param amount Array of amount in the swap.
+     * @param deadline Timestamp by which the swap must be executed.
+     * @return swapData Encoded data 
+     */
+    function encodeSwapData(address[] calldata path, uint256[] calldata amount, uint256 deadline) external pure returns(bytes memory swapData) {
+        
+        require(path.length == amount.length, "Path and amount length mismatch");
+
+        // Encode the path using abi.encodePacked
+        bytes memory pathData;
+        for(uint i = 0; i < path.length; i++) {
+            pathData = abi.encodePacked(pathData, path[i]);
+        }
+
+        //Encode the amount using abi.encodePacked
+        bytes memory amountData;
+        for(uint i = 0; i < amount.length; i++) {
+            amountData = abi.encodePacked(amountData, amount[i]);
+        }
+
+        // Combine all data into swapData
+        swapData = abi.encodePacked(pathData, amountData, deadline);
+   
+    }
+
 
    
 
