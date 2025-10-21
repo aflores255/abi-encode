@@ -97,7 +97,6 @@ contract ABIEncoder {
         //Encode the amount using abi.encodePacked
         bytes memory amountData;
         for (uint256 i = 0; i < amount.length; i++) {
-        
             amountData = abi.encodePacked(amountData, amount[i]);
         }
 
