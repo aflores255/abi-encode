@@ -1,4 +1,4 @@
-# 🔐 ABI Encoder
+# 🔐 ABI Encoder - Comprehensive DeFi Data Encoding Library for Solidity Smart Contracts
 
 ## 📌 Description
 
