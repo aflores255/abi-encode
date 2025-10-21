@@ -33,12 +33,15 @@ contract ABIEncoder {
      * @param fee Fee associated with the pool.
      * @return poolId Unique identifier for the pool.
      */
-    function createPoolIdentifier(address tokenA, address tokenB, uint256 fee) external pure returns (bytes32 poolId) {
+    function createPoolIdentifier(address tokenA, address tokenB, uint256 fee) external returns (bytes32 poolId) {
         // Ensure consistent ordering of token addresses
         (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
 
         // Use abi.encodePacked to create a unique pool identifier
         poolId = keccak256(abi.encodePacked(token0, token1, fee));
+        
+        // Emit event
+        emit PoolIdentifierCreated(poolId, token0, fee);
     }
 
     /**
@@ -59,12 +62,16 @@ contract ABIEncoder {
         uint256 amountIn,
         uint256 minAmountOut,
         uint256 deadline
-    ) external pure returns (bytes32 positionId, bytes memory encodedData) {
+    ) external returns (bytes32 positionId, bytes memory encodedData) {
         // Encode the trading position data using abi.encodePacked
         encodedData = abi.encodePacked(user, tokenIn, tokenOut, amountIn, minAmountOut, deadline);
 
         // Create a unique identifier for the position
         positionId = keccak256(encodedData);
+        
+        // Emit events
+        emit EncodedData(positionId, encodedData);
+        emit UserPositionEncoded(positionId, user, amountIn);
     }
 
     /**
@@ -122,6 +129,8 @@ contract ABIEncoder {
         orderData = abi.encodePacked(maker, taker, tokenIn, tokenOut, amountIn, amountOut, nonce, LIMIT_ORDER_NAME);
         // Create a unique hash for the order
         orderHash = keccak256(orderData);
+        
+     
     }
 
     /**
