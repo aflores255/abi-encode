@@ -22,7 +22,6 @@ contract ABIEncoderTest is Test {
     // Test for createPoolIdentifier function. Order of parameters matters.
 
     function testCreatePoolIdentifier() external {
-
         address tokenA = address(0x1);
         address tokenB = address(0x2);
         uint256 fee = 3000;
@@ -36,7 +35,6 @@ contract ABIEncoderTest is Test {
     // Test for different token pairs and fees producing different pool identifiers.
 
     function testCheckDifferentIdsPoolsIdentifier() public {
-
         address tokenA = address(0x1);
         address tokenB = address(0x2);
         address tokenC = address(0x3);
@@ -51,8 +49,7 @@ contract ABIEncoderTest is Test {
         assertTrue(idAB != idfees, "Pool identifiers for different fees should be different");
     }
 
-    function testEncodeTradingPositionCorrectly() public  {
-
+    function testEncodeTradingPositionCorrectly() public {
         address trader = address(0x123);
         address tokenIn = address(0x456);
         address tokenOut = address(0x789);
@@ -62,17 +59,18 @@ contract ABIEncoderTest is Test {
         uint256 fixedTimestamp = 1_700_000_000;
         vm.warp(fixedTimestamp);
 
-        (bytes32 positionId, bytes memory encodedData) = encoder.encodeTradingPosition(trader, tokenIn, tokenOut, amountIn, amountOut,fixedTimestamp);
-                
+        (bytes32 positionId, bytes memory encodedData) =
+            encoder.encodeTradingPosition(trader, tokenIn, tokenOut, amountIn, amountOut, fixedTimestamp);
+
         bytes memory expectedData = abi.encodePacked(trader, tokenIn, tokenOut, amountIn, amountOut, fixedTimestamp);
 
-       assertEq(encodedData, expectedData, "Encoded trading position data does not match expected data");
-       assertEq(positionId, keccak256(expectedData), "Position ID does not match expected hash");
+        assertEq(encodedData, expectedData, "Encoded trading position data does not match expected data");
+        assertEq(positionId, keccak256(expectedData), "Position ID does not match expected hash");
     }
 
     // Test that encodeSwapData encodes data correctly
 
-    function testEncodeSwapDataCorrectly() public{
+    function testEncodeSwapDataCorrectly() public {
         address[] memory path = new address[](3);
         path[0] = address(0x111);
         path[1] = address(0x222);
@@ -122,13 +120,11 @@ contract ABIEncoderTest is Test {
         uint256 amountOut = 200 ether;
         uint256 nonce = 12345;
 
-        (bytes32 orderHash, bytes memory orderData) = encoder.encodeLimitOrder(
-            maker, taker, tokenIn, tokenOut, amountIn, amountOut, nonce
-        );
+        (bytes32 orderHash, bytes memory orderData) =
+            encoder.encodeLimitOrder(maker, taker, tokenIn, tokenOut, amountIn, amountOut, nonce);
 
-        bytes memory expectedData = abi.encodePacked(
-            maker, taker, tokenIn, tokenOut, amountIn, amountOut, nonce, encoder.LIMIT_ORDER_NAME()
-        );
+        bytes memory expectedData =
+            abi.encodePacked(maker, taker, tokenIn, tokenOut, amountIn, amountOut, nonce, encoder.LIMIT_ORDER_NAME());
 
         assertEq(orderData, expectedData, "Encoded limit order data does not match expected data");
         assertEq(orderHash, keccak256(expectedData), "Order hash does not match expected hash");
@@ -143,15 +139,13 @@ contract ABIEncoderTest is Test {
 
         bytes32 positionId = encoder.encodeYieldPosition(user, poolId, amount, startTime);
 
-        bytes32 expectedId = keccak256(
-            abi.encodePacked(user, poolId, amount, startTime, encoder.YIELD_POSITION_NAME())
-        );
+        bytes32 expectedId = keccak256(abi.encodePacked(user, poolId, amount, startTime, encoder.YIELD_POSITION_NAME()));
 
         assertEq(positionId, expectedId, "Yield position ID does not match expected ID");
     }
 
     // test for encodeFlashLoanData function
-    function testEncodeFlashLoanDataCorrectly() public  {
+    function testEncodeFlashLoanDataCorrectly() public {
         address token = address(0x123);
         uint256 amount = 1000 ether;
         bytes memory callbackData = abi.encode("test_callback", 42);
@@ -183,7 +177,7 @@ contract ABIEncoderTest is Test {
     // test for createUserMultiPoolHash function
     function testCreateUserMultiPoolHashCorrectly() public view {
         address user = address(0x123);
-        
+
         bytes32[] memory poolIds = new bytes32[](3);
         poolIds[0] = keccak256("pool1");
         poolIds[1] = keccak256("pool2");
@@ -191,7 +185,8 @@ contract ABIEncoderTest is Test {
 
         bytes32 userPoolHash = encoder.createUserMultiPoolHash(user, poolIds);
 
-        bytes memory expectedCombinedData = abi.encodePacked(user, poolIds[0], poolIds[1], poolIds[2], encoder.MULTIPOOL_NAME());
+        bytes memory expectedCombinedData =
+            abi.encodePacked(user, poolIds[0], poolIds[1], poolIds[2], encoder.MULTIPOOL_NAME());
         bytes32 expectedHash = keccak256(expectedCombinedData);
 
         assertEq(userPoolHash, expectedHash, "User multi-pool hash does not match expected hash");
@@ -200,7 +195,7 @@ contract ABIEncoderTest is Test {
     // test for encodeYieldStrategy function
     function testEncodeYieldStrategyCorrectly() public view {
         string memory strategyName = "Test Strategy";
-        
+
         address[] memory pools = new address[](2);
         pools[0] = address(0x111);
         pools[1] = address(0x222);
@@ -214,9 +209,8 @@ contract ABIEncoderTest is Test {
         bytes memory expectedStrategyNameData = abi.encodePacked(strategyName);
         bytes memory expectedPoolsData = abi.encodePacked(pools[0], pools[1]);
         bytes memory expectedWeightsData = abi.encodePacked(weights[0], weights[1]);
-        bytes memory expectedData = abi.encodePacked(
-            expectedStrategyNameData, expectedPoolsData, expectedWeightsData, encoder.STRATEGY_NAME()
-        );
+        bytes memory expectedData =
+            abi.encodePacked(expectedStrategyNameData, expectedPoolsData, expectedWeightsData, encoder.STRATEGY_NAME());
 
         assertEq(strategyData, expectedData, "Yield strategy data does not match expected data");
     }
@@ -225,7 +219,7 @@ contract ABIEncoderTest is Test {
 
     function testEncodeYieldStrategyRevertsOnMismatch() public {
         string memory strategyName = "Test Strategy";
-        
+
         address[] memory pools = new address[](2);
         pools[0] = address(0x111);
         pools[1] = address(0x222);
@@ -247,13 +241,11 @@ contract ABIEncoderTest is Test {
         uint256 amount = 1000 ether;
         address recipient = address(0x456);
 
-        bytes memory bridgeData = encoder.encodeCrossChainBridgeData(
-            sourceChainId, destinationChainId, token, amount, recipient
-        );
+        bytes memory bridgeData =
+            encoder.encodeCrossChainBridgeData(sourceChainId, destinationChainId, token, amount, recipient);
 
-        bytes memory expectedData = abi.encodePacked(
-            sourceChainId, destinationChainId, token, amount, recipient, encoder.BRIDGE_NAME()
-        );
+        bytes memory expectedData =
+            abi.encodePacked(sourceChainId, destinationChainId, token, amount, recipient, encoder.BRIDGE_NAME());
 
         assertEq(bridgeData, expectedData, "Bridge data does not match expected data");
     }
@@ -267,9 +259,8 @@ contract ABIEncoderTest is Test {
 
         bytes32 transactionId = encoder.createDefiTransactionId(transactionType, user, timestamp, nonce);
 
-        bytes32 expectedId = keccak256(
-            abi.encodePacked(transactionType, user, timestamp, nonce, encoder.DEFI_TX_NAME())
-        );
+        bytes32 expectedId =
+            keccak256(abi.encodePacked(transactionType, user, timestamp, nonce, encoder.DEFI_TX_NAME()));
 
         assertEq(transactionId, expectedId, "Transaction ID does not match expected ID");
     }
@@ -284,9 +275,8 @@ contract ABIEncoderTest is Test {
 
         bytes memory stopLossData = encoder.encodeStopLossOrder(user, token, amount, stopPrice, triggerPrice);
 
-        bytes memory expectedData = abi.encodePacked(
-            user, token, amount, stopPrice, triggerPrice, encoder.STOP_LOSS_NAME()
-        );
+        bytes memory expectedData =
+            abi.encodePacked(user, token, amount, stopPrice, triggerPrice, encoder.STOP_LOSS_NAME());
 
         assertEq(stopLossData, expectedData, "Stop loss data does not match expected data");
     }
@@ -300,9 +290,7 @@ contract ABIEncoderTest is Test {
 
         bytes memory takeProfitData = encoder.encodeTakeProfitOrder(user, token, amount, takeProfitPrice);
 
-        bytes memory expectedData = abi.encodePacked(
-            user, token, amount, takeProfitPrice, encoder.TAKE_PROFIT_NAME()
-        );
+        bytes memory expectedData = abi.encodePacked(user, token, amount, takeProfitPrice, encoder.TAKE_PROFIT_NAME());
 
         assertEq(takeProfitData, expectedData, "Take profit data does not match expected data");
     }
@@ -315,15 +303,12 @@ contract ABIEncoderTest is Test {
         uint256 trailPercentage = 5; // 5%
         uint256 activationPrice = 2000 ether;
 
-        bytes memory trailingStopData = encoder.encodeTrailingStopOrder(
-            user, token, amount, trailPercentage, activationPrice
-        );
+        bytes memory trailingStopData =
+            encoder.encodeTrailingStopOrder(user, token, amount, trailPercentage, activationPrice);
 
-        bytes memory expectedData = abi.encodePacked(
-            user, token, amount, trailPercentage, activationPrice, encoder.TRAILING_STOP_NAME()
-        );
+        bytes memory expectedData =
+            abi.encodePacked(user, token, amount, trailPercentage, activationPrice, encoder.TRAILING_STOP_NAME());
 
         assertEq(trailingStopData, expectedData, "Trailing stop data does not match expected data");
     }
-
 }

@@ -39,7 +39,7 @@ contract ABIEncoder {
 
         // Use abi.encodePacked to create a unique pool identifier
         poolId = keccak256(abi.encodePacked(token0, token1, fee));
-        
+
         // Emit event
         emit PoolIdentifierCreated(poolId, token0, fee);
     }
@@ -68,7 +68,7 @@ contract ABIEncoder {
 
         // Create a unique identifier for the position
         positionId = keccak256(encodedData);
-        
+
         // Emit events
         emit EncodedData(positionId, encodedData);
         emit UserPositionEncoded(positionId, user, amountIn);
@@ -97,6 +97,7 @@ contract ABIEncoder {
         //Encode the amount using abi.encodePacked
         bytes memory amountData;
         for (uint256 i = 0; i < amount.length; i++) {
+        
             amountData = abi.encodePacked(amountData, amount[i]);
         }
 
@@ -129,8 +130,6 @@ contract ABIEncoder {
         orderData = abi.encodePacked(maker, taker, tokenIn, tokenOut, amountIn, amountOut, nonce, LIMIT_ORDER_NAME);
         // Create a unique hash for the order
         orderHash = keccak256(orderData);
-        
-     
     }
 
     /**
@@ -290,7 +289,7 @@ contract ABIEncoder {
      * @param amount Amount of the token for the take-profit order.
      * @param takeProfitPrice Price at which the take-profit order is executed.
      * @return takeProfitData Encoded data for the take-profit order.
-     */ 
+     */
     function encodeTakeProfitOrder(address user, address token, uint256 amount, uint256 takeProfitPrice)
         external
         pure
@@ -298,7 +297,6 @@ contract ABIEncoder {
     {
         takeProfitData = abi.encodePacked(user, token, amount, takeProfitPrice, TAKE_PROFIT_NAME);
     }
-
 
     /**
      * @dev Function to encode a trailing stop order using abi.encodePacked.
@@ -309,12 +307,13 @@ contract ABIEncoder {
      * @param activationPrice Price at which the trailing stop is activated.
      * @return trailingStopData Encoded data for the trailing stop order.
      */
-    function encodeTrailingStopOrder(address user, address token, uint256 amount, uint256 trailPercentage, uint256 activationPrice)
-        external
-        pure
-        returns (bytes memory trailingStopData)
-    {
+    function encodeTrailingStopOrder(
+        address user,
+        address token,
+        uint256 amount,
+        uint256 trailPercentage,
+        uint256 activationPrice
+    ) external pure returns (bytes memory trailingStopData) {
         trailingStopData = abi.encodePacked(user, token, amount, trailPercentage, activationPrice, TRAILING_STOP_NAME);
     }
-
 }
